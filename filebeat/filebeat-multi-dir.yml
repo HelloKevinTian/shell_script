@@ -1,0 +1,61 @@
+#filebeat7.8.0
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /home/filebeat_logs/*.log
+  fields:
+    log_type: system
+  fields_under_root: true
+  json.keys_under_root: true
+  json.overwrite_keys: true
+- type: log
+  enabled: true
+  paths:
+    - /home/custom_logs/*.log
+  fields:
+    log_type: operation
+  fields_under_root: true
+  json.keys_under_root: true
+  json.overwrite_keys: true
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+setup.template.settings:
+  index.number_of_shards: 1
+  #index.codec: best_compression
+  #_source.enabled: false
+
+setup.kibana:
+  #host: "localhost:5601"
+  #space.id:
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch_test.xxx.com:9200"]
+#   username: "filebeat_internal"
+#   password: "YOUR_PASSWORD"
+  indices:
+    - index: "twtest-log-error-%{+yyyy.MM}"
+      when.and:
+        - contains:
+            log_type: "system"
+        - equals:
+            level: "error"
+    - index: "twtest2-log-all-%{+yyyy.MM}"
+      when.and:
+        - contains:
+            log_type: "system"
+        - not:
+            equals:
+              level: "error"
+    - index: "twtest3-oplog-all-%{+yyyy.MM}"
+      when.contains:
+            log_type: "operation"
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
