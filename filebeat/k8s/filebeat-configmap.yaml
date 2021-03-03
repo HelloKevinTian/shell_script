@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: logagent
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /var/log/nodejs/*.log
+      fields:
+        log_type: system
+      fields_under_root: true
+      json.keys_under_root: true
+      json.overwrite_keys: true
+
+    filebeat.config.modules:
+      path: /usr/share/filebeat/modules.d/*.yml
+      reload.enabled: true
+
+    output.elasticsearch:
+      hosts: ['${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}']
+      indices:
+        - index: "nodejs-rambler-log-%{+yyyy.MM}"
+          when.and:
+            - contains:
+                log_type: "system"
+            - contains:
+                service: "rambler"
