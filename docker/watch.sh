@@ -1,0 +1,1 @@
+docker exec -t -i 4af68cc7d54b bash

@@ -1,0 +1,1 @@
+docker run --name co-console-server -p 8080:3081 -d gia/co-console-server:v0.1.0

@@ -1,0 +1,1 @@
+docker build -t gia/co-console-server:v0.1.0 .

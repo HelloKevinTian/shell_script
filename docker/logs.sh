@@ -1,0 +1,1 @@
+docker logs 4af6 -f
